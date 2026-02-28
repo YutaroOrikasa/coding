@@ -1,0 +1,16 @@
+name: Hello World Workflow
+
+# 実行されるタイミングを指定
+on:
+  push:                # コードが push されたとき
+  workflow_dispatch:   # ブラウザから手動で実行したいとき
+
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest  # GitHub が用意した Linux 環境で実行
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # リポジトリのコードを作業環境に持ってくる
+
+      - name: Run Greeting
+        run: echo "Hello, GitHub Actions! This is your first workflow."
