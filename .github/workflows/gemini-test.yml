@@ -16,6 +16,9 @@ jobs:
           # ここで値を注入
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_CLI_TRUST_WORKSPACE: true
+          # モデルを明示的に指定
+          GEMINI_MODEL: gemini-1.5-flash
+
 
         with:
           # APIキーのパラメータ名を修正
