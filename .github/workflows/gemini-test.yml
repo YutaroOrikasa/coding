@@ -5,7 +5,6 @@ on:
 
 jobs:
   test-comment:
-    # コメントに "/test" と含まれている時だけ動く
     if: contains(github.event.comment.body, '/test')
     runs-on: ubuntu-latest
     permissions:
@@ -14,13 +13,13 @@ jobs:
       - name: Run Gemini CLI
         uses: google-github-actions/run-gemini-cli@v0
         env:
-          # ここが重要！CLIに直接キーを教え込みます
+          # ここで値を注入
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         with:
-          # withの中にも念のため残しておきます（Actionの仕様変更対策）
+          # APIキーのパラメータ名を修正
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          instruction: |
+          # instructionではなくpromptを使う
+          prompt: |
             ユーザーが「/test」と送ってきました。
             「認証に成功し、正常に動作しています！」という旨を、
             スマホ開発を応援するような明るい日本語でIssueに返信してください。
-
