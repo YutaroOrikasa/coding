@@ -23,6 +23,7 @@ jobs:
         with:
           # APIキーのパラメータ名を修正
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: "gemini-2.0-flash"
           # instructionではなくpromptを使う
           prompt: |
             ユーザーが「/test」と送ってきました。
