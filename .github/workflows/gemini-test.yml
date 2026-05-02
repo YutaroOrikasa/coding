@@ -1,0 +1,21 @@
+name: Gemini Test
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  test-comment:
+    # コメントに "/test" と含まれている時だけ動く
+    if: contains(github.event.comment.body, '/test')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Run Gemini CLI
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          instruction: |
+            ユーザーが「/test」と送ってきました。
+            あなたは「Gemini CLIが正常に起動したこと」を、
+            少しウィットの効いた挨拶と共に、日本語でIssueに返信してください。
