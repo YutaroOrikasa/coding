@@ -1,4 +1,4 @@
-name: Gemini Test
+name: Gemini HelloWorld
 
 on:
   push:
@@ -7,27 +7,26 @@ on:
     types: [created]
 
 jobs:
-  # ---------------------------------------------------------
-  # Job 1: Push時にコンソールへ出力する専用ロボット
-  # ---------------------------------------------------------
+  # Job 1: Push時にコンソール出力
   hello-on-push:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    env:
+      # ここで環境変数を指定することで、このJob全体で信頼設定が有効になります
+      GEMINI_CLI_TRUST_WORKSPACE: true
     steps:
       - name: Gemini Console Hello
         uses: google-github-actions/run-gemini-cli@v0
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          # ツール使用を禁止し、1.5-flash で極短の応答を強制
-          prompt: "Push detected. Output 'System OK' to console and exit."
+          prompt: "Push detected. Output 'System OK' to console."
           gemini_cli_args: >-
             --no-tools
+            --skip-trust
             --model gemini-1.5-flash
             --max-output-tokens 10
 
-  # ---------------------------------------------------------
-  # Job 2: /test コメント時に Issue へ返信する専用ロボット
-  # ---------------------------------------------------------
+  # Job 2: /test コメント時に Issue 返信
   hello-on-comment:
     if: |
       github.event_name == 'issue_comment' && 
@@ -35,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+    env:
+      GEMINI_CLI_TRUST_WORKSPACE: true
     steps:
       - name: Gemini Issue Hello
         uses: google-github-actions/run-gemini-cli@v0
@@ -44,5 +45,6 @@ jobs:
           prompt: "Reply 'Hello from Issue! Verification successful.' to the user."
           gemini_cli_args: >-
             --no-tools
+            --skip-trust
             --model gemini-1.5-flash
             --max-output-tokens 20
