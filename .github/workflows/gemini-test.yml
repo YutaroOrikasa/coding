@@ -1,34 +1,48 @@
 name: Gemini Test
 
 on:
-  # プッシュをトリガーにする
   push:
-    branches:
-      - main
-  # Issue へのコメント（/testなど）をトリガーにする
+    branches: [main]
   issue_comment:
     types: [created]
 
 jobs:
-  gemini_job:
-    # Issueコメントの場合、特定のキーワード（/test）が含まれる時のみ実行して節約
-    if: |
-      github.event_name == 'push' || 
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '/test'))
+  # ---------------------------------------------------------
+  # Job 1: Push時にコンソールへ出力する専用ロボット
+  # ---------------------------------------------------------
+  hello-on-push:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Run Gemini CLI
+      - name: Gemini Console Hello
         uses: google-github-actions/run-gemini-cli@v0
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_CLI_TRUST_WORKSPACE: true
-          GEMINI_MODEL: gemini-1.5-flash # 軽量・高速モデルを指定
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          # ツール使用を禁止し、出力を最短にするプロンプト
-          prompt: |
-            ユーザーが「/test」と送りました。
-            以下のルールを厳守してください：
-            1. 返信は「認証成功！スマホ開発頑張りましょう！」の1行のみ。
-            2. read_file などのツールは一切使用禁止。
-            3. 思考プロセスは出力せず、結果のみ返してください。
+          # ツール使用を禁止し、1.5-flash で極短の応答を強制
+          prompt: "Push detected. Output 'System OK' to console and exit."
+          gemini_cli_args: >-
+            --no-tools
+            --model gemini-1.5-flash
+            --max-output-tokens 10
+
+  # ---------------------------------------------------------
+  # Job 2: /test コメント時に Issue へ返信する専用ロボット
+  # ---------------------------------------------------------
+  hello-on-comment:
+    if: |
+      github.event_name == 'issue_comment' && 
+      contains(github.event.comment.body, '/test')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Gemini Issue Hello
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          github_issue_number: ${{ github.event.issue.number }}
+          prompt: "Reply 'Hello from Issue! Verification successful.' to the user."
+          gemini_cli_args: >-
+            --no-tools
+            --model gemini-1.5-flash
+            --max-output-tokens 20
